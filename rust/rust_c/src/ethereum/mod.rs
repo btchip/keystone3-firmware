@@ -108,6 +108,14 @@ pub unsafe extern "C" fn eth_check(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn eth_get_sign_data_string(ptr: PtrUR) -> PtrString {
+    let crypto_eth = extract_ptr_with_type!(ptr, EthSignRequest);
+    let utf8_message =
+        String::from_utf8(crypto_eth.get_sign_data()).unwrap_or_else(|_| "".to_string());
+    convert_c_char(utf8_message)
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn eth_get_root_path_bytes(ptr: PtrUR) -> PtrString {
     let payload = build_payload(ptr, QRCodeType::Bytes).unwrap();
     let content = payload.content.unwrap();

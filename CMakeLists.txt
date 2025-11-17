@@ -170,12 +170,19 @@ set(SRC_INCLUDE_PATH
     src/webusb_protocol/general
 )
 
+set(VANADIUM_INCLUDE_PATH
+    vanadium/mini-c-sdk
+    vanadium/vm/thirdparty/sha3
+    vanadium/vm/src
+)
+
 set(INCLUDE_DIR
     build/rust-builds
     ${SRC_INCLUDE_PATH}
     ${CRYPTO_INCLUDE_PATH}
     ${GUI_INCLUDE_PATH}
     ${EXTERNAL_INCLUDE_PATH}
+    ${VANADIUM_INCLUDE_PATH}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -236,6 +243,19 @@ file(GLOB_RECURSE CRYPTO_SLIP39
     "src/crypto/slip39/trezor-crypto/sha2.c"
     "src/crypto/slip39/trezor-crypto/rand.c"
     "src/crypto/slip39/trezor-crypto/pbkdf2.c"
+)
+
+file (GLOB_RECURSE VANADIUM
+      "vanadium/vm/src/cpu.c"
+      "vanadium/vm/src/ecall_dispatcher.c"
+      "vanadium/vm/src/ecall_keccak256.c"
+      "vanadium/vm/src/ecall_debug.c"
+      "vanadium/vm/thirdparty/sha3/sha3.c"
+      #"vanadium/vm/thirdparty/sha3/memzero.c"
+      "vanadium/vm/tests/elfprogram.c"
+      "vanadium/vm/tests/extradatas.c"
+      "vanadium/vm/tests/vm_int.c"
+      "vanadium/vm/platforms/ks3/platform_malloc.c"
 )
 
 if(COMPILE_KEYSTONE)
@@ -305,6 +325,7 @@ if(COMPILE_KEYSTONE)
         ${GUI}
         ${WEBUSB_PROTOCOL}
         ${SAFE_C}
+        ${VANADIUM}
         external/mh1903_lib/Device/MegaHunt/mhscpu/Source/GCC/startup_mhscpu.s
         src/cm_backtrace/fault_handler/gcc/cmb_fault.s
     )

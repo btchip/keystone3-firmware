@@ -40,6 +40,7 @@ bool GetEthTypeDataHashExist(void *indata, void *param);
 bool GetEthContractFromInternal(char *address, char *inputData);
 bool GetEthTypeDataChainExist(void *indata, void *param);
 bool GetEthTypeDataVersionExist(void *indata, void *param);
+bool GetEthClearSigningExist(void *indata, void *param);
 bool GetEthContractFromExternal(char *address, char *selectorId, uint64_t chainId, char *inputData);
 void GetEthMethodName(void *indata, void *param, uint32_t maxLen);
 void GetEthContractName(void *indata, void *param, uint32_t maxLen);
@@ -83,6 +84,8 @@ int GetEthTypedDataMessageLen(void *param);
 void GetEthTypedDataFrom(void *indata, void *param, uint32_t maxLen);
 void EthContractLearnMore(lv_event_t *e);
 void EthContractCheckRawData(lv_event_t *e);
+void GetEthClearSigningInformation(void *indata, void *param, uint32_t maxLen);
+int GetEthClearSigningInformationLen(void *param);
 
 typedef struct {
     uint64_t chainId;

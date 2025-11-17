@@ -37,6 +37,11 @@ static bool g_isPermitSingle = false;
 static bool g_isOperation = false;
 static ViewType g_viewType = ViewTypeUnKnown;
 
+static char *g_vanadiumExtraData = NULL;
+
+int vm_run(const uint8_t *extraData1, uint32_t extraData1Size, const uint8_t *extraData2, uint32_t extraData2Size,
+    uint8_t *out, size_t *outSize);
+
 const static EvmNetwork_t NETWORKS[] = {
     {0, "Unknown Network", "ETH"},
     {1, "Ethereum Mainnet", "ETH"},
@@ -657,6 +662,10 @@ void GuiSetEthUrData(URParseResult *urResult, URParseMultiResult *urMultiResult,
             break;                                                                                                                \
         case EthTypedData:                                                                                                        \
             free_TransactionParseResult_DisplayETHTypedData((PtrT_TransactionParseResult_DisplayETHTypedData)result);             \
+            if (g_vanadiumExtraData != NULL) {                                                                                    \
+                SRAM_FREE(g_vanadiumExtraData);                                                                                   \
+                g_vanadiumExtraData = NULL;                                                                                       \
+            }                                                                                                                     \
             break;                                                                                                                \
         default:                                                                                                                  \
             break;                                                                                                                \
@@ -771,6 +780,11 @@ static void UpdatePermitFlag(const char *primaryType)
     }
 }
 
+extern uint8_t EXTRADATA1[];
+extern uint32_t EXTRADATA1_SIZE;
+//extern uint8_t EXTRADATA2[];
+//extern uint32_t EXTRADATA2_SIZE;
+
 void *GuiGetEthTypeData(void)
 {
     CHECK_FREE_PARSE_RESULT(g_parseResult);
@@ -788,6 +802,14 @@ void *GuiGetEthTypeData(void)
         result = eth_check(data, mfp, sizeof(mfp));
         CHECK_CHAIN_BREAK(result);
         PtrT_TransactionParseResult_DisplayETHTypedData parseResult = eth_parse_typed_data(data, ethXpub);
+
+        g_vanadiumExtraData = (char*)SRAM_MALLOC(1024);
+        uint32_t extraDataSize = 1024;
+        char *originalData = eth_get_sign_data_string(data);
+        vm_run(EXTRADATA1, EXTRADATA1_SIZE, originalData, strlen(originalData), g_vanadiumExtraData, &extraDataSize);
+        free_ptr_string(originalData);
+        g_vanadiumExtraData[extraDataSize] = '\0';
+
         cJSON *json = cJSON_Parse(parseResult->data->message);
         cJSON *operation = cJSON_GetObjectItem(json, "operation");
         if (operation) {
@@ -1011,6 +1033,28 @@ void GetEthPersonalMessageType(void *indata, void *param, uint32_t maxLen)
         strcpy_s((char *)indata, maxLen, "utf8_message");
     } else {
         strcpy_s((char *)indata, maxLen, "raw_message");
+    }
+}
+
+bool GetEthClearSigningExist(void *indata, void *param) {
+    return ((g_vanadiumExtraData != NULL) && (strlen(g_vanadiumExtraData) != 0));
+}
+
+void GetEthClearSigningInformation(void *indata, void *param, uint32_t maxLen) {
+    if ((g_vanadiumExtraData != NULL) && (strlen(g_vanadiumExtraData) != 0)) {
+        strcpy_s((char *)indata, maxLen, g_vanadiumExtraData);
+    }
+    else {
+        strcpy_s((char *)indata, maxLen, "");
+    }
+}
+
+int GetEthClearSigningInformationLen(void *param) {
+    if ((g_vanadiumExtraData != NULL) && (strlen(g_vanadiumExtraData) != 0)) {
+        return strlen(g_vanadiumExtraData);
+    }
+    else {
+        return 0;
     }
 }
 
@@ -1751,5 +1795,9 @@ void FreeEthMemory(void)
     CHECK_FREE_PARSE_RESULT(g_parseResult);
     FreeContractData();
     GUI_DEL_OBJ(g_contractRawDataHintbox);
+    if (g_vanadiumExtraData != NULL) {
+        SRAM_FREE(g_vanadiumExtraData);
+        g_vanadiumExtraData = NULL;
+    }
     g_isPermitSingle = false;
 }

@@ -133,6 +133,8 @@ GetObjStateFunc GuiOtherChainStateFuncGet(char *type)
         return GetEthEnsExist;
     } else if (!strcmp(type, "GetEthTypeDataHashExist")) {
         return GetEthTypeDataHashExist;
+    } else if (!strcmp(type, "GetEthClearSigningExist")) {
+        return GetEthClearSigningExist;
     } else if (!strcmp(type, "GetToEthEnsExist")) {
         return GetToEthEnsExist;
     } else if (!strcmp(type, "GetEthTypeDataChainExist")) {
@@ -368,6 +370,8 @@ static GetLabelDataLenFunc GuiEthTextLenFuncGet(char *type)
         return GetEthTypedDataMessageLen;
     } else if (!strcmp(type, "GetEthInputDataLen")) {
         return GetEthInputDataLen;
+    } else if (!strcmp(type, "GetEthClearSigningInformationLen")) {
+        return GetEthClearSigningInformationLen;
     }
     return NULL;
 }
@@ -607,6 +611,8 @@ static GetLabelDataFunc GuiEthTypedDataTextFuncGet(char *type)
         return GetEthTypedDataSafeTxHash;
     } else if (!strcmp(type, "GetEthTypedDataDomainHash")) {
         return GetEthTypedDataDomainHash;
+    } else if (!strcmp(type, "GetEthClearSigningInformation")) {
+        return GetEthClearSigningInformation;
     }
     return NULL;
 }
